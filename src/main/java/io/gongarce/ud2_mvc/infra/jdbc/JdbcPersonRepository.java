@@ -17,13 +17,14 @@ import jakarta.persistence.Query;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import lombok.RequiredArgsConstructor;
 
 /**
  *
  * @author Gonzalo
  */
-//@Component
 @RequiredArgsConstructor(onConstructor = @__({
     @Inject}))
 public class JdbcPersonRepository implements PersonRepository {
@@ -34,14 +35,18 @@ public class JdbcPersonRepository implements PersonRepository {
     public Person save(Person person) throws SavePersonException, NifExistingException {
         entityManager.getTransaction().begin();
         PersonEntity entity = PersonEntityMapper.INSTANCE.toEntity(person);
-        if (findByNif(person.getNif()).filter((p) -> !p.getId().equals(entity.getId())).isPresent()) {
+
+        var existingEntity = findByNif(person.getNif());
+        if (existingEntity.filter((p) -> !p.getId().equals(entity.getId())).isPresent()) {
             throw new NifExistingException();
         }
+
         try {
-            entityManager.persist(entity);
+            entityManager.merge(entity);
             entityManager.getTransaction().commit();
         } catch (Exception e) {
             entityManager.getTransaction().rollback();
+            Logger.getLogger(JdbcPersonRepository.class.getName()).log(Level.SEVERE, null, e);
             throw new SavePersonException();
         }
         return PersonEntityMapper.INSTANCE.toDomain(entity);

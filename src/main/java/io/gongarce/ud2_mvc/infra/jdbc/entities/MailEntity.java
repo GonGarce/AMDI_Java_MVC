@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package io.gongarce.ud2_mvc.infra.jdbc.entities;
 
 import jakarta.persistence.Basic;
@@ -29,6 +25,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "mail", catalog = "AMDI_24", uniqueConstraints = @UniqueConstraint(columnNames = {"address"}))
 @NamedQueries({
     @NamedQuery(name = "Mail.findAll", query = "SELECT m FROM MailEntity m"),
+    @NamedQuery(name = "Mail.findByNif", query = "SELECT m FROM MailEntity m WHERE m.person.nif = :nif"),
     @NamedQuery(name = "Mail.findByPerson", query = "SELECT m FROM MailEntity m WHERE m.person = :person"),
     @NamedQuery(name = "Mail.findById", query = "SELECT m FROM MailEntity m WHERE m.id = :id"),
     @NamedQuery(name = "Mail.findByAddress", query = "SELECT m FROM MailEntity m WHERE m.address = :address")})
@@ -44,6 +41,6 @@ public class MailEntity {
     private String address;
 
     @JoinColumn(name = "id_person", referencedColumnName = "id")
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = true)
     private PersonEntity person;
 }

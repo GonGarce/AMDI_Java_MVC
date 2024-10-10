@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package io.gongarce.ud2_mvc.infra.jdbc.entities;
 
 import jakarta.persistence.Basic;
@@ -10,6 +6,7 @@ import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -61,4 +58,14 @@ public class PersonEntity {
         @JoinColumn(name = "id_person")})
     @Column(name = "phone")
     List<String> phones;
+    
+    public PersonEntity from(PersonEntity p) {
+        setId(p.id);
+        setMails(p.mails);
+        setName(p.getName());
+        setNif(p.getNif());
+        setPlace(p.getPlace());
+        setPhones(p.getPhones());
+        return this;
+    }
 }

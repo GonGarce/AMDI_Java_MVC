@@ -5,7 +5,7 @@
 package io.gongarce.ud2_mvc.presentation.controller;
 
 import io.gongarce.ud2_mvc.presentation.model.ListModel;
-import io.gongarce.ud2_mvc.presentation.model.LoadingStatusModel;
+import io.gongarce.ud2_mvc.presentation.model.SinglePropertyModel;
 import java.awt.event.ActionEvent;
 import java.util.List;
 import java.util.Optional;
@@ -23,18 +23,18 @@ public abstract class SearchListController<T> extends AbstractAction {
 
     private final Document searchInput;
     private final ListModel<T> listModel;
-    private final LoadingStatusModel loadingStatusModel;
+    private final SinglePropertyModel<Boolean> loadingStatusModel;
 
     public abstract List<T> search(Optional<String> searchText);
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        loadingStatusModel.setLoadingStatus(true);
+        loadingStatusModel.setProperty(true);
         (new Thread(() -> {
             try {
                 listModel.setData(search(getSearchInput()));
             } finally {
-                loadingStatusModel.setLoadingStatus(false);
+                loadingStatusModel.setProperty(false);
             }
         })).start();
     }

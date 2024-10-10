@@ -5,15 +5,15 @@
 package io.gongarce.ud2_mvc.application;
 
 import com.google.inject.Inject;
+import io.gongarce.ud2_mvc.application.validation.NotBlankValidator;
 import io.gongarce.ud2_mvc.application.validation.PhoneValidator;
 import io.gongarce.ud2_mvc.application.validation.Validator;
 import io.gongarce.ud2_mvc.domain.error.NotFoundException;
 import io.gongarce.ud2_mvc.domain.person.Person;
 import io.gongarce.ud2_mvc.domain.person.PersonRepository;
-import io.gongarce.ud2_mvc.domain.person.error.ModifyNifException;
 import io.gongarce.ud2_mvc.domain.person.error.NifExistingException;
+import io.gongarce.ud2_mvc.domain.person.error.RequiredPropertyException;
 import io.gongarce.ud2_mvc.domain.person.error.SavePersonException;
-import io.gongarce.ud2_mvc.domain.person.error.WrongNifException;
 import io.gongarce.ud2_mvc.domain.person.error.WrongPhoneException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -29,14 +29,15 @@ public class UpdatePersonsUserCase implements UseCase {
 
     private final PersonRepository personRepository;
 
-    public Person update(@NonNull Person person) 
-            throws SavePersonException, WrongNifException, WrongPhoneException, NotFoundException, ModifyNifException, NifExistingException {
+    public Person update(@NonNull Person person)
+            throws SavePersonException, WrongPhoneException, NotFoundException, NifExistingException, RequiredPropertyException {
         var existingPerson = personRepository.get(person.getNif()).orElseThrow(() -> new NotFoundException());
 
-        Validator.create(person)
-                .validate((p) -> !existingPerson.getNif().equals(p.getNif()), () -> new ModifyNifException())
+        Validator.of(person)
+                .validate((p) -> NotBlankValidator.isValid(p.getName()), () -> new RequiredPropertyException("Name"))
                 .validate(PhoneValidator::isValid, () -> new WrongPhoneException());
 
-        return personRepository.save(person);
+        var newPerson = existingPerson.toBuilder().name(person.getName()).place(person.getPlace()).build();
+        return personRepository.save(newPerson);
     }
 }

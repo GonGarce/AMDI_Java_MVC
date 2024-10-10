@@ -5,7 +5,7 @@
 package io.gongarce.ud2_mvc.presentation.controller;
 
 import io.gongarce.ud2_mvc.presentation.model.ListModel;
-import io.gongarce.ud2_mvc.presentation.model.LoadingStatusModel;
+import io.gongarce.ud2_mvc.presentation.model.SinglePropertyModel;
 import java.awt.event.ActionEvent;
 import static java.util.Objects.nonNull;
 import java.util.Optional;
@@ -33,7 +33,7 @@ public class SearchListController2<T> extends AbstractAction {
     private final ListModel<T> listModel;
 
     @Nullable
-    private final LoadingStatusModel loadingStatusModel;
+    private final SinglePropertyModel<Boolean> loadingStatusModel;
 
     @Override
     public void actionPerformed(ActionEvent e) {
@@ -58,7 +58,7 @@ public class SearchListController2<T> extends AbstractAction {
 
     private void setLoadingStatus(boolean status) {
         if (nonNull(loadingStatusModel)) {
-            loadingStatusModel.setLoadingStatus(status);
+            loadingStatusModel.setProperty(status);
         }
     }
 }

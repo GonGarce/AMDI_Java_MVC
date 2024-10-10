@@ -6,8 +6,8 @@ import io.gongarce.ud2_mvc.application.GetPersonsUserCase;
 import io.gongarce.ud2_mvc.application.UpdatePersonsUserCase;
 import io.gongarce.ud2_mvc.domain.error.NotFoundException;
 import io.gongarce.ud2_mvc.domain.person.Person;
-import io.gongarce.ud2_mvc.domain.person.error.ModifyNifException;
 import io.gongarce.ud2_mvc.domain.person.error.NifExistingException;
+import io.gongarce.ud2_mvc.domain.person.error.RequiredPropertyException;
 import io.gongarce.ud2_mvc.domain.person.error.SavePersonException;
 import io.gongarce.ud2_mvc.domain.person.error.WrongNifException;
 import io.gongarce.ud2_mvc.domain.person.error.WrongPhoneException;
@@ -22,7 +22,7 @@ import java.util.logging.Logger;
  */
 public class Main {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws RequiredPropertyException {
         GetPersonsUserCase getPersonsUseCase = App.get(GetPersonsUserCase.class);
         CreatePersonsUserCase createPersonsUserCase = App.get(CreatePersonsUserCase.class);
 
@@ -40,7 +40,7 @@ public class Main {
 
         try {
             App.get(UpdatePersonsUserCase.class).update(new Person(2L, "11223344A", "Paula", "Pontevedra", null, Lists.newArrayList("666555444")));
-        } catch (SavePersonException | WrongNifException | WrongPhoneException | NotFoundException | ModifyNifException | NifExistingException ex) {
+        } catch (SavePersonException | WrongPhoneException | NotFoundException | NifExistingException ex) {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }
 

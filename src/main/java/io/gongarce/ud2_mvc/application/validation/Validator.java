@@ -14,7 +14,7 @@ import lombok.RequiredArgsConstructor;
  * @author Gonzalo
  * @param <T> Type of object to validate
  */
-@RequiredArgsConstructor(staticName = "create")
+@RequiredArgsConstructor(staticName = "of")
 public class Validator<T> {
 
     private final T object;

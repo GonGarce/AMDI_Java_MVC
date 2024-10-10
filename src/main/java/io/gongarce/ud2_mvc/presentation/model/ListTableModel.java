@@ -9,13 +9,14 @@ import java.util.function.Function;
 import java.util.stream.IntStream;
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.AbstractTableModel;
+import lombok.Data;
 
 /**
  *
  * @author Gonzalo
  * @param <T> type of info this model represents
  */
-public class ListTableModel<T> extends AbstractTableModel implements ListModel<T> {
+public class ListTableModel<T> extends AbstractTableModel implements ListModel<T>, MasterModel<T> {
 
     public List<T> data;
     private List<TableColum<T, ?>> columns;
@@ -67,6 +68,15 @@ public class ListTableModel<T> extends AbstractTableModel implements ListModel<T
     }
 
     @Override
+    public void update(T oldModel, T newModel) {
+        var rowIndex = data.indexOf(oldModel);
+        if (rowIndex > -1) {
+            data.set(rowIndex, newModel);
+            this.fireTableRowsUpdated(rowIndex, rowIndex);
+        }
+    }
+
+    @Override
     public int getRowCount() {
         return data.size();
     }
@@ -108,6 +118,7 @@ public class ListTableModel<T> extends AbstractTableModel implements ListModel<T
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
         TableColum<T, Object> col = (TableColum<T, Object>) columns.get(columnIndex);
         col.getDataSetter().accept(data.get(rowIndex), col.getColumType().cast(aValue));
+        fireTableCellUpdated(rowIndex, columnIndex);
     }
 
     @Override
@@ -115,6 +126,7 @@ public class ListTableModel<T> extends AbstractTableModel implements ListModel<T
         return columns.get(columnIndex).isEditable();
     }
 
+    @Data
     public static class TableColum<T, R> {
 
         private final String columName;
@@ -133,28 +145,7 @@ public class ListTableModel<T> extends AbstractTableModel implements ListModel<T
 
         public TableColum(String columName, Class<R> columType, Function<T, R> dataGetter, BiConsumer<T, R> dataSetter, boolean editable) {
             this(columName, columType, dataGetter, dataSetter);
-            this.editable = false;
+            this.editable = editable;
         }
-
-        public String getColumName() {
-            return columName;
-        }
-
-        public Class<R> getColumType() {
-            return columType;
-        }
-
-        public Function<T, R> getDataGetter() {
-            return dataGetter;
-        }
-
-        public BiConsumer<T, R> getDataSetter() {
-            return dataSetter;
-        }
-
-        public boolean isEditable() {
-            return editable;
-        }
-
     }
 }

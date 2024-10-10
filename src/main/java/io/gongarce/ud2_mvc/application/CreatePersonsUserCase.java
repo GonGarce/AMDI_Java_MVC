@@ -29,7 +29,7 @@ public class CreatePersonsUserCase implements UseCase{
     private final PersonRepository personRepository;
 
     public Person create(@NonNull Person person) throws SavePersonException, NifExistingException, WrongNifException, WrongPhoneException {
-        Validator.create(person)
+        Validator.of(person)
                 .validate(NifValidator::isValid, () -> new WrongNifException())
                 .validate(PhoneValidator::isValid, () -> new WrongPhoneException());
 

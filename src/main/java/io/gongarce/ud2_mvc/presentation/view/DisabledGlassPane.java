@@ -6,6 +6,8 @@ package io.gongarce.ud2_mvc.presentation.view;
 
 import java.awt.*;
 import java.awt.event.*;
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 import javax.swing.*;
 import javax.swing.border.*;
 
@@ -21,6 +23,24 @@ public class DisabledGlassPane extends JComponent
 
     private final static Border MESSAGE_BORDER = new EmptyBorder(10, 10, 10, 10);
     private JLabel message = new JLabel();
+
+    public static void show(Component context, String message) {
+        JRootPane rootPane = SwingUtilities.getRootPane(context);
+        var glass = rootPane.getGlassPane();
+        if (isNull(glass) || !(glass instanceof DisabledGlassPane)) {
+            glass = new DisabledGlassPane();
+            rootPane.setGlassPane(glass);
+        }
+        ((DisabledGlassPane) glass).activate(message);
+    }
+
+    public static void hide(Component context) {
+        JRootPane rootPane = SwingUtilities.getRootPane(context);
+        var glass = rootPane.getGlassPane();
+        if (nonNull(glass) && glass instanceof DisabledGlassPane disableGlass) {
+            disableGlass.deactivate();
+        }
+    }
 
     public DisabledGlassPane() {
         //  Set glass pane properties

@@ -3,13 +3,18 @@ package io.gongarce.ud2_mvc.presentation.view.person;
 import io.gongarce.ud2_mvc.presentation.controller.person.PersonListController;
 import io.gongarce.ud2_mvc.presentation.controller.person.PersonListControllerAction;
 import io.gongarce.ud2_mvc.presentation.controller.SearchListController2;
+import io.gongarce.ud2_mvc.presentation.controller.click.DoubleClickController;
 import io.gongarce.ud2_mvc.presentation.model.ListTableModel;
-import io.gongarce.ud2_mvc.presentation.model.LoadingStatusModel;
+import io.gongarce.ud2_mvc.presentation.model.SinglePropertyModel;
 import io.gongarce.ud2_mvc.presentation.model.person.TablePerson;
+import io.gongarce.ud2_mvc.presentation.view.AppModalDialog;
 import io.gongarce.ud2_mvc.presentation.view.DisabledGlassPane;
 import java.util.ArrayList;
+import java.util.EventObject;
 import java.util.List;
 import static java.util.Objects.nonNull;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
 import javax.swing.JRootPane;
 import javax.swing.SwingUtilities;
 
@@ -19,21 +24,23 @@ import javax.swing.SwingUtilities;
  */
 public class PersonListPanel extends javax.swing.JPanel {
 
+    ListTableModel<TablePerson> tableModel;
+
     public PersonListPanel() {
         initComponents();
 
         // This view is the only component that knows we are going to work with Persons
         // so is the responsible of creating the particular model
         List<ListTableModel.TableColum<TablePerson, ?>> columns = new ArrayList<>(3);
-        columns.add(new ListTableModel.TableColum<>("NIF", String.class, TablePerson::getNif, TablePerson::setNif, false));
-        columns.add(new ListTableModel.TableColum<>("Nombre", String.class, TablePerson::getName, TablePerson::setName, false));
-        columns.add(new ListTableModel.TableColum<>("Ciudad", String.class, TablePerson::getPlace, TablePerson::setPlace, false));
-        ListTableModel<TablePerson> tableModel = new ListTableModel<>(columns);
+        columns.add(new ListTableModel.TableColum<>("NIF", String.class, TablePerson::getNif, null, false));
+        columns.add(new ListTableModel.TableColum<>("Nombre", String.class, TablePerson::getName, null, false));
+        columns.add(new ListTableModel.TableColum<>("Ciudad", String.class, TablePerson::getPlace, null, false));
+        tableModel = new ListTableModel<>(columns);
         tablePersons.setModel(tableModel);
 
         // Create a loading status model to be notified and update the UI
-        LoadingStatusModel loadingModel = LoadingStatusModel.builder()
-                .isLoading(false)
+        SinglePropertyModel<Boolean> loadingModel = SinglePropertyModel.<Boolean>builder()
+                .property(false)
                 .listener(this::loadingStatusChanged)
                 .build();
 
@@ -47,22 +54,23 @@ public class PersonListPanel extends javax.swing.JPanel {
                 PersonListControllerAction.create(),
                 txtSearch.getDocument(), tableModel, loadingModel);
         txtSearch.addActionListener(controller2);
+
+        tablePersons.addMouseListener(DoubleClickController.execute(this::detailVisibilityChanged));
+    }
+
+    private void detailVisibilityChanged(EventObject e) {
+        JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
+        TablePerson person = (TablePerson) ((ListTableModel) tablePersons.getModel()).getRowValue(tablePersons.convertRowIndexToModel(tablePersons.getSelectedRow()));
+        JDialog dialog = new AppModalDialog(frame, new PersonDetailPanel(tableModel, person));
+        dialog.setLocationRelativeTo(frame);
+        dialog.setVisible(true);
     }
 
     private void loadingStatusChanged(boolean loadingStatus) {
         if (loadingStatus) {
-            JRootPane rootPane = SwingUtilities.getRootPane(this);
-            var glass = new DisabledGlassPane();
-            rootPane.setGlassPane(glass);
-            glass.activate("Loading...");
-            rootPane.revalidate();
-            rootPane.repaint();
+            DisabledGlassPane.show(this, "Searching...");
         } else {
-            JRootPane rootPane = SwingUtilities.getRootPane(this);
-            var glass = rootPane.getGlassPane();
-            if (nonNull(glass) && glass instanceof DisabledGlassPane disableGlass) {
-                disableGlass.deactivate();
-            }
+            DisabledGlassPane.hide(this);
         }
     }
 

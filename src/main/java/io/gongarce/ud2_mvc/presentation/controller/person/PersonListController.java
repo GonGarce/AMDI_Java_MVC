@@ -4,7 +4,7 @@ import io.gongarce.ud2_mvc.application.GetPersonsUserCase;
 import io.gongarce.ud2_mvc.presentation.App;
 import io.gongarce.ud2_mvc.presentation.controller.SearchListController;
 import io.gongarce.ud2_mvc.presentation.model.ListModel;
-import io.gongarce.ud2_mvc.presentation.model.LoadingStatusModel;
+import io.gongarce.ud2_mvc.presentation.model.SinglePropertyModel;
 import io.gongarce.ud2_mvc.presentation.model.person.TablePerson;
 import io.gongarce.ud2_mvc.presentation.model.person.TablePersonMapper;
 import java.util.List;
@@ -17,7 +17,7 @@ import javax.swing.text.Document;
  */
 public class PersonListController extends SearchListController<TablePerson> {
 
-    public PersonListController(Document searchInput, ListModel<TablePerson> listModel, LoadingStatusModel loadingStatusModel) {
+    public PersonListController(Document searchInput, ListModel<TablePerson> listModel, SinglePropertyModel<Boolean> loadingStatusModel) {
         super(searchInput, listModel, loadingStatusModel);
     }
 
