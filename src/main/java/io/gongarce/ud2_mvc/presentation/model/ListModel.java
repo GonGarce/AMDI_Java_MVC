@@ -4,15 +4,12 @@
  */
 package io.gongarce.ud2_mvc.presentation.model;
 
-import lombok.Data;
+import java.util.List;
 
 /**
  *
- * @author gag
+ * @author Gonzalo
  */
-@Data
-public class TablePerson {
-    String nif;
-    String name;
-    String place;
+public interface ListModel<T> {
+    void setData(List<T> data);
 }

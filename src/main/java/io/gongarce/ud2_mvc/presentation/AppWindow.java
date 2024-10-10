@@ -4,7 +4,7 @@
  */
 package io.gongarce.ud2_mvc.presentation;
 
-import io.gongarce.ud2_mvc.presentation.view.PersonListPanel;
+import io.gongarce.ud2_mvc.presentation.view.person.PersonListPanel;
 import javax.swing.BoxLayout;
 
 /**
@@ -18,9 +18,9 @@ public class AppWindow extends javax.swing.JFrame {
      */
     public AppWindow() {
         //initComponents();
-
+        
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        setLocationRelativeTo(null);
         getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
         getContentPane().add(new PersonListPanel());
         pack();

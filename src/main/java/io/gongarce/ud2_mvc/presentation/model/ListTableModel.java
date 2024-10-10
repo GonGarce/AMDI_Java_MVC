@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package io.gongarce.ud2_mvc.presentation.model;
 
 import java.util.ArrayList;
@@ -17,8 +13,9 @@ import javax.swing.table.AbstractTableModel;
 /**
  *
  * @author Gonzalo
+ * @param <T> type of info this model represents
  */
-public class ListTableModel<T> extends AbstractTableModel {
+public class ListTableModel<T> extends AbstractTableModel implements ListModel<T> {
 
     public List<T> data;
     private List<TableColum<T, ?>> columns;
@@ -42,6 +39,7 @@ public class ListTableModel<T> extends AbstractTableModel {
         return data;
     }
 
+    @Override
     public void setData(List<T> data) {
         this.data = data;
         this.fireTableDataChanged();

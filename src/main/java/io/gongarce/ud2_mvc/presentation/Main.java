@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package io.gongarce.ud2_mvc.presentation;
 
 import com.google.common.collect.Lists;
@@ -22,6 +18,7 @@ import java.util.logging.Logger;
 /**
  *
  * @author Gonzalo
+ * This class is just to illustrate how to use UseCases on the app main flow
  */
 public class Main {
 

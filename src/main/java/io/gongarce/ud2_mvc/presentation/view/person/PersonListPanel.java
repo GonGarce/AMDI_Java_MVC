@@ -1,48 +1,69 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JPanel.java to edit this template
- */
-package io.gongarce.ud2_mvc.presentation.view;
+package io.gongarce.ud2_mvc.presentation.view.person;
 
-import io.gongarce.ud2_mvc.presentation.controller.PersonListController;
+import io.gongarce.ud2_mvc.presentation.controller.person.PersonListController;
+import io.gongarce.ud2_mvc.presentation.controller.person.PersonListControllerAction;
+import io.gongarce.ud2_mvc.presentation.controller.SearchListController2;
 import io.gongarce.ud2_mvc.presentation.model.ListTableModel;
-import io.gongarce.ud2_mvc.presentation.model.TablePerson;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import io.gongarce.ud2_mvc.presentation.model.LoadingStatusModel;
+import io.gongarce.ud2_mvc.presentation.model.person.TablePerson;
+import io.gongarce.ud2_mvc.presentation.view.DisabledGlassPane;
 import java.util.ArrayList;
 import java.util.List;
+import static java.util.Objects.nonNull;
+import javax.swing.JRootPane;
+import javax.swing.SwingUtilities;
 
 /**
  *
- * @author gag
+ * @author Gonzalo
  */
 public class PersonListPanel extends javax.swing.JPanel {
-    
-    PersonListController controller;
 
-    /**
-     * Creates new form PersonListPanel
-     */
     public PersonListPanel() {
         initComponents();
-        
+
+        // This view is the only component that knows we are going to work with Persons
+        // so is the responsible of creating the particular model
         List<ListTableModel.TableColum<TablePerson, ?>> columns = new ArrayList<>(3);
         columns.add(new ListTableModel.TableColum<>("NIF", String.class, TablePerson::getNif, TablePerson::setNif, false));
         columns.add(new ListTableModel.TableColum<>("Nombre", String.class, TablePerson::getName, TablePerson::setName, false));
         columns.add(new ListTableModel.TableColum<>("Ciudad", String.class, TablePerson::getPlace, TablePerson::setPlace, false));
         ListTableModel<TablePerson> tableModel = new ListTableModel<>(columns);
-        controller = new PersonListController(tableModel);
-        
         tablePersons.setModel(tableModel);
-        
-        btnSearch.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                controller.search(txtSearch.getText());
+
+        // Create a loading status model to be notified and update the UI
+        LoadingStatusModel loadingModel = LoadingStatusModel.builder()
+                .isLoading(false)
+                .listener(this::loadingStatusChanged)
+                .build();
+
+        // We will test to different controller implementations
+        // Button: First one inherits from base SearchController and adds the use case call 
+        PersonListController controller = new PersonListController(txtSearch.getDocument(), tableModel, loadingModel);
+        btnSearch.addActionListener(controller);
+
+        // Text field "Enter ↵": Second one use SearchController and pass an implementation of the search on creation
+        SearchListController2 controller2 = new SearchListController2<>(
+                PersonListControllerAction.create(),
+                txtSearch.getDocument(), tableModel, loadingModel);
+        txtSearch.addActionListener(controller2);
+    }
+
+    private void loadingStatusChanged(boolean loadingStatus) {
+        if (loadingStatus) {
+            JRootPane rootPane = SwingUtilities.getRootPane(this);
+            var glass = new DisabledGlassPane();
+            rootPane.setGlassPane(glass);
+            glass.activate("Loading...");
+            rootPane.revalidate();
+            rootPane.repaint();
+        } else {
+            JRootPane rootPane = SwingUtilities.getRootPane(this);
+            var glass = rootPane.getGlassPane();
+            if (nonNull(glass) && glass instanceof DisabledGlassPane disableGlass) {
+                disableGlass.deactivate();
             }
-            
-        });
-        
+        }
     }
 
     /**
@@ -58,8 +79,7 @@ public class PersonListPanel extends javax.swing.JPanel {
         jPanel1 = new javax.swing.JPanel();
         txtSearch = new javax.swing.JTextField();
         btnSearch = new javax.swing.JButton();
-        jPanel2 = new javax.swing.JPanel();
-        jScrollPane1 = new javax.swing.JScrollPane();
+        jScrollPane2 = new javax.swing.JScrollPane();
         tablePersons = new javax.swing.JTable();
 
         setBorder(javax.swing.BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -68,6 +88,7 @@ public class PersonListPanel extends javax.swing.JPanel {
         java.awt.GridBagLayout jPanel1Layout = new java.awt.GridBagLayout();
         jPanel1Layout.columnWidths = new int[] {270, 30};
         jPanel1Layout.columnWeights = new double[] {0.9, 0.1};
+        jPanel1Layout.rowWeights = new double[] {0.0, 1.0};
         jPanel1.setLayout(jPanel1Layout);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -75,20 +96,16 @@ public class PersonListPanel extends javax.swing.JPanel {
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.ipadx = 7;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 10, 10);
         jPanel1.add(txtSearch, gridBagConstraints);
 
         btnSearch.setText("Search");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
-        gridBagConstraints.gridheight = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
         jPanel1.add(btnSearch, gridBagConstraints);
-
-        add(jPanel1);
-
-        jPanel2.setLayout(new javax.swing.BoxLayout(jPanel2, javax.swing.BoxLayout.LINE_AXIS));
 
         tablePersons.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -101,19 +118,24 @@ public class PersonListPanel extends javax.swing.JPanel {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
-        jScrollPane1.setViewportView(tablePersons);
+        jScrollPane2.setViewportView(tablePersons);
 
-        jPanel2.add(jScrollPane1);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.insets = new java.awt.Insets(10, 0, 0, 0);
+        jPanel1.add(jScrollPane2, gridBagConstraints);
 
-        add(jPanel2);
+        add(jPanel1);
     }// </editor-fold>//GEN-END:initComponents
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnSearch;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel2;
-    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTable tablePersons;
     private javax.swing.JTextField txtSearch;
     // End of variables declaration//GEN-END:variables
