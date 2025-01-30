@@ -1,9 +1,6 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package io.gongarce.ud2_mvc.application.validation;
 
+import io.gongarce.ud2_mvc.domain.error.ValidationExpception;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import lombok.NonNull;
@@ -14,7 +11,7 @@ import lombok.RequiredArgsConstructor;
  * @author Gonzalo
  * @param <T> Type of object to validate
  */
-@RequiredArgsConstructor(staticName = "create")
+@RequiredArgsConstructor(staticName = "of")
 public class Validator<T> {
 
     private final T object;
@@ -30,9 +27,10 @@ public class Validator<T> {
         return this;
     }
 
-    public Validator<T> validate(@NonNull Function<T, Boolean> validator) {
+    public Validator<T> validate(@NonNull Function<T, Boolean> validator) throws ValidationExpception {
         if (!hasFail && !validator.apply(object)) {
             hasFail = true;
+            throw new ValidationExpception();
         }
         return this;
     }

@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package io.gongarce.ud2_mvc.application;
 
 import com.google.inject.Inject;
@@ -21,15 +17,14 @@ import lombok.RequiredArgsConstructor;
  *
  * @author Gonzalo
  */
-//@Component
 @RequiredArgsConstructor(onConstructor = @__({
     @Inject}))
-public class CreatePersonsUserCase implements UseCase{
+public class CreatePersonsUserCase implements UseCase {
 
     private final PersonRepository personRepository;
 
     public Person create(@NonNull Person person) throws SavePersonException, NifExistingException, WrongNifException, WrongPhoneException {
-        Validator.create(person)
+        Validator.of(person)
                 .validate(NifValidator::isValid, () -> new WrongNifException())
                 .validate(PhoneValidator::isValid, () -> new WrongPhoneException());
 

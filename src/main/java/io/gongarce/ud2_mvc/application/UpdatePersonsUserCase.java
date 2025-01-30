@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package io.gongarce.ud2_mvc.application;
 
 import com.google.inject.Inject;
@@ -22,7 +18,6 @@ import lombok.RequiredArgsConstructor;
  *
  * @author Gonzalo
  */
-//@Component
 @RequiredArgsConstructor(onConstructor = @__({
     @Inject}))
 public class UpdatePersonsUserCase implements UseCase {
@@ -33,7 +28,7 @@ public class UpdatePersonsUserCase implements UseCase {
             throws SavePersonException, WrongNifException, WrongPhoneException, NotFoundException, ModifyNifException, NifExistingException {
         var existingPerson = personRepository.get(person.getNif()).orElseThrow(() -> new NotFoundException());
 
-        Validator.create(person)
+        Validator.of(person)
                 .validate((p) -> !existingPerson.getNif().equals(p.getNif()), () -> new ModifyNifException())
                 .validate(PhoneValidator::isValid, () -> new WrongPhoneException());
 
