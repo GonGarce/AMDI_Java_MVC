@@ -23,13 +23,17 @@ public class CreatePersonsUserCase implements UseCase {
 
     private final PersonRepository personRepository;
 
+    private final NifValidator nifValidator;
+
+    private final PhoneValidator phoneValidator;
+
     public Person create(@NonNull Person person) throws SavePersonException, NifExistingException, WrongNifException, WrongPhoneException {
         Validator.of(person)
-                .validate(NifValidator::isValid, () -> new WrongNifException())
-                .validate(PhoneValidator::isValid, () -> new WrongPhoneException());
+                .validate(nifValidator::isValid, () -> new WrongNifException())
+                .validate(phoneValidator::isValid, () -> new WrongPhoneException());
 
         var existingPerson = personRepository.get(person.getNif());
-        if (existingPerson.filter((p) -> !p.getId().equals(person.getId())).isPresent()) {
+        if (existingPerson.isPresent()) {
             throw new NifExistingException();
         }
 

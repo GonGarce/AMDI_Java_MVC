@@ -5,12 +5,10 @@ import io.gongarce.ud2_mvc.domain.person.Person;
 import io.gongarce.ud2_mvc.domain.person.PersonRepository;
 import io.gongarce.ud2_mvc.domain.person.error.NifExistingException;
 import io.gongarce.ud2_mvc.domain.person.error.SavePersonException;
-import io.gongarce.ud2_mvc.infra.jdbc.entities.MailEntity;
 import io.gongarce.ud2_mvc.infra.jdbc.entities.PersonEntity;
 import io.gongarce.ud2_mvc.infra.jdbc.mappers.PersonEntityMapper;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -33,7 +31,7 @@ public class JdbcPersonRepository implements PersonRepository {
             throw new NifExistingException();
         }
         try {
-            entityManager.persist(entity);
+            entityManager.merge(entity);
             entityManager.getTransaction().commit();
         } catch (Exception e) {
             entityManager.getTransaction().rollback();
@@ -55,19 +53,10 @@ public class JdbcPersonRepository implements PersonRepository {
 
     @Override
     public List<Person> getByMail(String address) {
-        return getMail(address).map((mail) -> {
-            Query query = entityManager.createNamedQuery("Person.findByMail");
-            query.setParameter("mail", mail);
-            List<PersonEntity> persons = query.getResultList();
-            return PersonEntityMapper.INSTANCE.toDomain(persons);
-        }).orElse(Collections.emptyList());
-    }
-
-    private Optional<MailEntity> getMail(String address) {
-        Query query = entityManager.createNamedQuery("Mail.findByAddress");
-        query.setParameter("address", address);
-        MailEntity mail = (MailEntity) query.getSingleResultOrNull();
-        return Optional.ofNullable(mail);
+        Query query = entityManager.createNamedQuery("Person.findByMail");
+        query.setParameter("mail", "%" + address + "%");
+        List<PersonEntity> persons = query.getResultList();
+        return PersonEntityMapper.INSTANCE.toDomain(persons);
     }
 
     private Optional<PersonEntity> findByNif(String nif) {

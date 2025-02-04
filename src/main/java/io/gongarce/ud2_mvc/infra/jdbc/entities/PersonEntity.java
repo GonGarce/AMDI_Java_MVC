@@ -30,7 +30,7 @@ import lombok.NoArgsConstructor;
 @NamedQueries({
     @NamedQuery(name = "Person.findAll", query = "SELECT p FROM PersonEntity p"),
     @NamedQuery(name = "Person.findByNif", query = "SELECT p FROM PersonEntity p WHERE p.nif = :nif"),
-    @NamedQuery(name = "Person.findByMail", query = "SELECT p FROM PersonEntity p WHERE :mail MEMBER OF p.mails"),
+    @NamedQuery(name = "Person.findByMail", query = "SELECT p FROM PersonEntity p RIGHT JOIN mails m WHERE m.address LIKE :mail "),
     @NamedQuery(name = "Person.findByPhone", query = "SELECT p FROM PersonEntity p WHERE :phone MEMBER OF p.phones")})
 public class PersonEntity {
 
