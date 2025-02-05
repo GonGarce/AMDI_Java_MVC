@@ -11,4 +11,5 @@ import lombok.Value;
 public class Mail {
     @NonNull Long id;
     @NonNull String address;
+    @NonNull Long personId;
 }

@@ -11,6 +11,8 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -27,14 +29,18 @@ public class JdbcPersonRepository implements PersonRepository {
     public Person save(Person person) throws SavePersonException, NifExistingException {
         entityManager.getTransaction().begin();
         PersonEntity entity = PersonEntityMapper.INSTANCE.toEntity(person);
-        if (findByNif(person.getNif()).filter((p) -> !p.getId().equals(entity.getId())).isPresent()) {
+        Long id = entity.getId();
+
+        var existingNif = findByNif(person.getNif());
+        if (existingNif.filter((p) -> !p.getId().equals(id)).isPresent()) {
             throw new NifExistingException();
         }
         try {
-            entityManager.merge(entity);
+            entity = entityManager.merge(entity);
             entityManager.getTransaction().commit();
         } catch (Exception e) {
             entityManager.getTransaction().rollback();
+            Logger.getLogger(JdbcPersonRepository.class.getName()).log(Level.SEVERE, null, e);
             throw new SavePersonException();
         }
         return PersonEntityMapper.INSTANCE.toDomain(entity);

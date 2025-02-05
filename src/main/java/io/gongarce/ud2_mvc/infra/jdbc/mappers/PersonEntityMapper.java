@@ -23,10 +23,11 @@ public interface PersonEntityMapper {
 
     List<Person> toDomain(List<PersonEntity> persons);
 
+    @Mapping(target = "personId", source = "person.id")
     Mail toDomain(MailEntity m);
 
     PersonEntity toEntity(Person p);
 
-    @Mapping(target = "person", ignore = true)
+    @Mapping(target = "person.id", source = "personId")
     MailEntity toEntity(Mail m);
 }
